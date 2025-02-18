@@ -8,7 +8,7 @@ from routers.file_manager import update_message_to_conversation_file, add_to_ful
 
 
 class Agent():
-    def __init__(self, file_id: str, model: str, system_prompt:str = "", num_answers: int = 0, options: dict = {}, max_history: int = 3, summary_model: str = "ollama3.2:1b", chat_history: list = []):
+    def __init__(self, file_id: str, model: str, system_prompt:str = "", num_answers: int = 0, options: dict = {}, max_history: int = 10, summary_model: str = "ollama3.2:1b", chat_history: list = []):
         
         self.file_id = file_id
         
@@ -50,7 +50,6 @@ class Agent():
                 {"role": "system", "content": f"Summary of the previous conversation:\n{self.resume_context}"},
                 *self.chat_history[-2:]
             ]
-            print(self.chat_history)
              
         # Prepare the message with context
         context_message = (
