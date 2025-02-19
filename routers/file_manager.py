@@ -2,7 +2,8 @@ import os, json
 import numpy as np
 from typing import List
 from datetime import datetime
-from nanoid import generate as nano_generate_id
+
+from calculations.utilities import id_generator
 
 from fastapi import APIRouter, HTTPException
 
@@ -13,14 +14,6 @@ Conversation_Files = APIRouter()
 actual_path = os.path.dirname(__file__)
 json_path = os.path.join(actual_path, "..", "conversations")
 
-
-#UTILITIES
-def id_generator(size: int = 21) -> str:
-    """
-    Generate id with nanoid with a defined size.
-    :param Size: Number of characters. default 21
-    """
-    return nano_generate_id(size= size)
 
 #INDEX
 def add_file_to_index(file_path: str, conversation_name: str) -> str:
