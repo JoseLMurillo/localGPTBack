@@ -26,3 +26,17 @@ class ContentFileTemplate(BaseModel):
     resume_context: str
     full_history: Optional[list[Message]] = []
     embeddings_vectors: Optional[list[list[float]]] = []
+    
+class AgentModel(BaseModel):
+    id: Optional[str] = None
+    name :str
+    resume: str
+    prompt: str
+    model: str
+    
+    
+class AgentModelPut(BaseModel):
+    name : Optional[str] = None
+    resume: Optional[str] = None
+    prompt: Optional[str] = None
+    model: Optional[str] = None
