@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from ollama import list as ollamaList
 
 IAModels = APIRouter()
@@ -10,12 +10,14 @@ def get_ollama_intalled_models() -> list[str] | str:
     Returns the list of all installed ollama models installed
     """
     try:
-        if(len(ollamaList().models) == 0):
-            return "There are no ollama models installed."
+        model_data: dict = ollamaList().models 
+
+        if(len(model_data) == 0):
+            raise HTTPException(status_code=404, detail="There are no ollama models installed.")
         
-        modelList: list = [element.model for element in ollamaList().models]
+        modelList: list = [element.model for element in model_data]
         return modelList
 
-    except:
-        return ("Error loading ollama models")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading ollama models: {str(e)}")
     
