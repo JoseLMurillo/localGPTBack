@@ -1,5 +1,5 @@
 import numpy as np
-from ollama import embed, chat
+from ollama import embeddings, chat
 
 #EMBEDDINGS
 def generate_embedding(text: str) -> np.ndarray:
@@ -8,8 +8,12 @@ def generate_embedding(text: str) -> np.ndarray:
     :param text: Texto to embed
     :return embedding in format np.array
     """
-    response = embed(model='nomic-embed-text:latest', input=text)
-    return np.array(response.embeddings[0])
+    
+    """ response = embed(model='nomic-embed-text:latest', input=text)
+    return np.array(response.embeddings[0]) """
+
+    response = embeddings(model='nomic-embed-text:latest', prompt=text)
+    return np.array(response["embedding"])
 
 
 def find_relevant_context(query_embedding, embeddings_vectors, embeddings_history, top_k: int = 3) -> str:
