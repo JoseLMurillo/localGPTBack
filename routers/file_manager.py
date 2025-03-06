@@ -115,7 +115,7 @@ def create_conversation_file(format_file_name: str, content: ContentFileTemplate
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error to create conversation file: {str(e)}")
     
-    return (json_path + format_file_name)
+    return os.path.join(json_path, format_file_name)
 
 
 def add_embedding_to_conversation_file(file_id: str, embedding: np.ndarray):
