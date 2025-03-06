@@ -235,7 +235,7 @@ def get_conversation_content(file_id: str) -> json:
     file_path = ""
     file_content: dict  = read_file_index()
     if(file_id in file_content):
-        file_path = file_content[file_id]["file_path"]
+        file_path = os.path.join(actual_path, file_content[file_id]["file_path"])
 
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Conversation file no fount")
