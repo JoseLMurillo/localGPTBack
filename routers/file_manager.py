@@ -12,7 +12,8 @@ from models.models import ContentFileTemplate
 Conversation_Files = APIRouter()
 
 actual_path = os.path.dirname(__file__)
-json_path = os.path.join(actual_path, "..", "conversations")
+json_path = os.path.join("..", "conversations")
+json_local_path = os.path.join(actual_path, json_path)
 
 
 #INDEX
@@ -38,7 +39,7 @@ def read_file_index() -> json:
     }
     """
     
-    index_file_path = os.path.join(json_path, "index.json")
+    index_file_path = os.path.join(json_local_path, "index.json")
     if not os.path.exists(index_file_path):
         raise HTTPException(status_code=404, detail="Index file no exist")
     
@@ -53,7 +54,7 @@ def write_file_index(content: dict) -> bool:
     """
     Writes a new value to the index file and returns True if created
     """
-    index_file_path = os.path.join(json_path, "index.json")
+    index_file_path = os.path.join(json_local_path, "index.json")
     if not os.path.exists(index_file_path):
         raise HTTPException(status_code=404, detail="File no fount")
     
@@ -97,7 +98,8 @@ def create_conversation_file(format_file_name: str, content: ContentFileTemplate
     :Param content
     :return create file_path
     """
-    file_path = f"{json_path}/{format_file_name}"
+    
+    file_path = f"{json_local_path}/{format_file_name}"
     
     #Converts the BaseModel to dict
     file_content = dict(content)
@@ -113,7 +115,7 @@ def create_conversation_file(format_file_name: str, content: ContentFileTemplate
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error to create conversation file: {str(e)}")
     
-    return file_path
+    return (json_path + format_file_name)
 
 
 def add_embedding_to_conversation_file(file_id: str, embedding: np.ndarray):
