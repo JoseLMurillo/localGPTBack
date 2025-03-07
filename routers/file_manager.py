@@ -123,16 +123,16 @@ def add_embedding_to_conversation_file(file_id: str, embedding: np.ndarray):
     Add new messages to the entire conversation history.
     """
     file_content: dict  = read_file_index()
+    
     convert_embedding = embedding.tolist()
     
     if(file_id not in file_content):
         raise HTTPException(status_code=404, detail="File not found in index")
     
     file_path = file_content[file_id]["file_path"]
-    conversation_content = get_conversation_content(file_id)
     
+    conversation_content = get_conversation_content(file_id)
     conversation_content["embeddings_vectors"].append(convert_embedding)
-
     add_conversation_file(file_path, conversation_content)
 
 
@@ -142,13 +142,12 @@ def get_embeddings_of_conversation(file_id: str) -> List[np.ndarray]:
     :param file_id: Id in index
     :return List[np.ndarray]
     """
-
-    file_content: dict  = read_file_index()
     
+    file_content: dict  = read_file_index()
     if(file_id not in file_content):
         raise HTTPException(status_code=404, detail="File not found in index")
     
-    file_path = file_content[file_id]["file_path"]
+    file_path = os.path.join(actual_path, file_content[file_id]["file_path"])
 
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Conversation file no fount")
@@ -173,7 +172,7 @@ def get_full_history_of_conversation(file_id: str) -> dict:
     if(file_id not in file_content):
         raise HTTPException(status_code=404, detail="Conversation file no fount")
     
-    file_path = file_content[file_id]["file_path"]    
+    file_path = os.path.join(actual_path, file_content[file_id]["file_path"])
 
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Conversation file no fount")
@@ -193,8 +192,10 @@ def add_conversation_file(file_path: str, file_content):
     :Param file_name
     :Param content
     """
+    local_path = os.path.join(actual_path, file_path)
+    
     try:
-        with open(file_path, "w",  encoding="utf-8") as file:
+        with open(local_path, "w",  encoding="utf-8") as file:
             json.dump(file_content, file, indent=4, ensure_ascii=False)
         
     except Exception as e:
@@ -257,7 +258,7 @@ def add_to_full_history_conversation_file(file_id: str, messages: list):
     if(file_id not in file_content):
         raise HTTPException(status_code=404, detail="Conversation file no fount")
     
-    file_path = file_content[file_id]["file_path"]
+    file_path = os.path.join(actual_path, file_content[file_id]["file_path"])
     conversation_content = get_conversation_content(file_id)
     
     conversation_content["full_history"].extend(messages)
@@ -274,7 +275,7 @@ def update_message_to_conversation_file(file_id: str, messages: list):
     if(file_id not in file_content):
         raise HTTPException(status_code=404, detail="Conversation file no fount")
 
-    file_path = file_content[file_id]["file_path"]
+    file_path = os.path.join(file_content[file_id]["file_path"])
     
     conversation_content = get_conversation_content(file_id)
     conversation_content["messages_history"] = messages

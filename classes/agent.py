@@ -33,55 +33,43 @@ class Agent():
          
     def generate_response(self, message):
         current_embedding = generate_embedding(message)
+        add_embedding_to_conversation_file(self.file_id, current_embedding)
+        embeddings_vectors = get_embeddings_of_conversation(self.file_id)
+        full_history = get_full_history_of_conversation(self.file_id)
+        relevant_context = find_relevant_context(current_embedding, embeddings_vectors, full_history)
         
-        """  
-            add_embedding_to_conversation_file(self.file_id, current_embedding)
+        # Check if history needs to be summarized
+        if len(self.chat_history) >= self.max_history:
+            self.resume_context = summarize_history(self.chat_history, self.summary_model)
             
+            # Keep only the system message and the last two messages
+            self.chat_history = [
+                self.chat_history[0],
+                {"role": "system", "content": f"Summary of the previous conversation:\n{self.resume_context}"},
+                *self.chat_history[-2:]
+            ]
             
-            embeddings_vectors = get_embeddings_of_conversation(self.file_id)
-            full_history = get_full_history_of_conversation(self.file_id)
-            relevant_context = find_relevant_context(current_embedding, embeddings_vectors, full_history)
-    
-            # Check if history needs to be summarized
-            if len(self.chat_history) >= self.max_history:
-                self.resume_context = summarize_history(self.chat_history, self.summary_model)
-                
-                # Keep only the system message and the last two messages
-                self.chat_history = [
-                    self.chat_history[0],
-                    {"role": "system", "content": f"Summary of the previous conversation:\n{self.resume_context}"},
-                    *self.chat_history[-2:]
-                ]
-                
-            # Prepare the message with context
-            context_message = (
-                f"{message}\n\nRelevant context of the previous conversation:\n{relevant_context}\n"
-                f"Summary of the conversation:\n{self.resume_context}" if self.resume_context else message
-                )     
-            
-            format_user_message = {"role":"user", "content": context_message}
-            self.chat_history.append(format_user_message)
-            
-            total_response = ""
-            response = chat(model = self.model, messages= self.chat_history, stream=True, keep_alive=60)
-            
-            for word in response:
-                total_response += word['message']['content']
-                yield word['message']['content']
-                
-            format_assitant_response = {"role":"assistant", "content": total_response}
-                
-            self.chat_history.append(format_assitant_response)
-            
-            if(self.file_id != ""):
-                add_to_full_history_conversation_file(self.file_id, [format_user_message, format_assitant_response])
-                update_message_to_conversation_file(self.file_id, self.chat_history) """
+        # Prepare the message with context
+        context_message = (
+            f"{message}\n\nRelevant context of the previous conversation:\n{relevant_context}\n"
+            f"Summary of the conversation:\n{self.resume_context}" if self.resume_context else message
+            )
         
-            
-        stream = chat(model = self.model, messages= [{'role': 'user', 'content': message}], stream=True, keep_alive=60)
+        format_user_message = {"role":"user", "content": context_message}
+        self.chat_history.append(format_user_message)
         
-        for chunk in stream:
-            print(chunk['message']['content'], end='', flush=True)
-            yield chunk['message']['content']
-            
+        total_response = ""
         
+        response = chat(model = self.model, messages= self.chat_history, stream=True, keep_alive=60)
+        
+        for word in response:
+            total_response += word['message']['content']
+            yield word['message']['content']
+            
+        format_assitant_response = {"role":"assistant", "content": total_response}
+                
+        self.chat_history.append(format_assitant_response)
+        
+        if(self.file_id != ""):
+            add_to_full_history_conversation_file(self.file_id, [format_user_message, format_assitant_response])
+            update_message_to_conversation_file(self.file_id, self.chat_history) 

@@ -161,7 +161,7 @@ def chat_with_agent(conversation: Conversation_Chat) -> StreamingResponse:
         'chat_history': conversation_content["messages_history"],
         'file_id': conversation.conversation_id
         }
-    
+
     #Keeps agents in memory
     if(agent_id not in active_agents):
         agent = Agent(**agent_config)
@@ -170,3 +170,4 @@ def chat_with_agent(conversation: Conversation_Chat) -> StreamingResponse:
     agent = active_agents[agent_id]
     
     return StreamingResponse(agent.generate_response(conversation.message), media_type="text/plain")
+    
